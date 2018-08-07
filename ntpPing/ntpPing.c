@@ -1,7 +1,7 @@
 //
 // A simple NTP client that does not care about time
 // but only reports the latencies recorded in the ntp
-// protocol.
+// protocol: for pinging ntp servers using ntp.
 //
 // Mostly adaped from https://github.com/lettier/ntpclient/blob/master/source/c/main.c
 //

@@ -19,6 +19,11 @@ pushd iputils
 make
 popd
 
+# Make ntpPing
+pushd ntpPing
+make
+popd
+
 # Set up docker
 apt-get install -y \
   apt-transport-https \
