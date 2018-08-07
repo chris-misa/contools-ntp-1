@@ -93,6 +93,32 @@ void print_tv(struct timeval *t)
 }
 
 //
+// Utility for subtracting timeval structs
+// From: http://www.gnu.org/software/libc/manual/html_node/Elapsed-Time.html
+//
+int timeval_subtract(struct timeval *result, struct timeval *x, struct timeval *y)
+{
+  // Perform carry for subtraction by updating y if needed
+  if (x->tv_usec < y->tv_usec) {
+    int nsec = (y->tv_usec - x->tv_usec) / 1000000 + 1;
+    y->tv_usec -= 1000000 * nsec;
+    y->tv_sec += nsec;
+  }
+  if (x->tv_usec - y->tv_usec > 1000000) {
+    int nsec = (x->tv_usec - y->tv_usec) / 1000000;
+    y->tv_usec += 1000000 * nsec;
+    y->tv_sec -= nsec;
+  }
+
+  // Do the subtraction
+  result->tv_sec = x->tv_sec - y->tv_sec;
+  result->tv_usec = x->tv_usec - y->tv_usec;
+
+  // Return 1 if result is negative
+  return x->tv_sec < y->tv_sec;
+}
+
+//
 // Main
 //
 int main( int argc, char *argv[] )
@@ -106,6 +132,8 @@ int main( int argc, char *argv[] )
   struct timeval targetRecTime;
   struct timeval targetSendTime;
   struct timeval recTime;
+  struct timeval sendBias;
+  struct timeval recvBias;
   
 
   if ( argc != 2 ) {
@@ -168,10 +196,20 @@ int main( int argc, char *argv[] )
   print_tv(&sendTime);
   printf("Target rec:  ");
   print_tv(&targetRecTime);
+
+  timeval_subtract(&sendBias, &targetRecTime, &sendTime);
+  printf("  Outbound Bias: ");
+  print_tv(&sendBias);
+
   printf("Target send: ");
   print_tv(&targetSendTime);
   printf("Origin rec:  ");
   print_tv(&recTime);
+
+  timeval_subtract(&recvBias, &recTime, &targetSendTime);
+  printf("  Inbound Bias:  ");
+  print_tv(&recvBias);
+  
 
   return 0;
 }
